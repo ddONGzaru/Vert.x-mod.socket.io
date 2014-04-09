@@ -1,0 +1,488 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+ 	<!-- ===== Project Description ===== -->
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>Vert.x-mod.socket.io</groupId>
+	<artifactId>Vert.x-mod.socket.io</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>war</packaging>
+
+	<!-- ===== Dependencies DESCRIPTION ===== -->  
+	
+	<!-- :::::::::: Compile Dependency :::::::::: -->
+	<dependencies>
+		
+		<!-- spring framework -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+			<version>4.0.3.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context-support</artifactId>
+			<version>4.0.3.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-oxm</artifactId>
+			<version>4.0.3.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-orm</artifactId>
+			<version>4.0.3.RELEASE</version>
+		</dependency>
+		
+		<dependency>
+    		<groupId>com.nhncorp</groupId>
+    		<artifactId>mod-socket-io</artifactId>
+    		<version>0.9.0</version>
+		</dependency>
+		
+		<!-- apache commons -->
+		     
+            
+		
+		<!-- log 관련 -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.6.4</version>			
+		</dependency>		
+		
+	</dependencies>
+		
+	
+	<!-- ===== Properties Description ===== -->	
+	<properties>
+    	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+ 	</properties>
+
+	
+	<!-- ===== Repositories Description ===== -->	
+	<repositories>
+		<repository>
+    		<id>public</id>
+    		<name>public</name>
+	        <url>http://211.174.156.95:8080/nexus/content/groups/public/</url>	        
+    	    <releases>
+    	    	<enabled>true</enabled></releases>
+        	<snapshots>
+        		<enabled>true</enabled></snapshots>
+		</repository>
+		
+		<repository>
+    		<id>my.mvn.repo</id>
+    		<url>https://github.com/keesun/mvn-repo/raw/master</url>
+		</repository>
+		<!-- <repository>
+    		<id>public</id>
+    		<name>public</name>
+	        <url>https://repository.jboss.org/nexus/content/repositories/thirdparty-releases</url>	        
+    	    <releases>
+    	    	<enabled>true</enabled></releases>
+        	<snapshots>
+        		<enabled>true</enabled></snapshots>
+		</repository> -->
+						
+	</repositories>
+	
+	<pluginRepositories>
+	    <pluginRepository>
+	        <id>public</id>
+	        <name>public</name>
+	        <url>http://211.174.156.95:8080/nexus/content/groups/public/</url>
+	        <releases><enabled>true</enabled></releases>
+	        <snapshots><enabled>true</enabled></snapshots>
+	    </pluginRepository>
+	</pluginRepositories>
+
+
+	
+	<!-- ===== Build Description ===== -->
+	<build>
+		
+		<!-- finalName은 war, jar파일 생성 phase를 실행시 war, jar파일의 이름이 됨 -->
+		<finalName>pg7</finalName>
+
+		<!-- 소스 코드의 루프 패스를 지정 --> 
+	  	<sourceDirectory>${basedir}/src</sourceDirectory>
+	  	
+	  	<!-- 테스트 소스 코드의 루프 패스를 지정 -->
+	  	<testSourceDirectory>${basedir}/test</testSourceDirectory>
+	  	
+	  	<!-- 빌드된 소스의 저장 패스를 지정 -->
+	  	<outputDirectory>${basedir}/target/classes</outputDirectory>
+	  	
+	  	<!-- 빌드된 테스트 소스의 저장 패스를 지정 -->
+	  	<testOutputDirectory>${basedir}/target/test-classes</testOutputDirectory>
+		
+		<!-- 소스 이외의 리소스 파일들의 루프 패스를 지정 --> 
+	  	<resources>
+	  		<resource>
+	  			<directory>${basedir}/src</directory>
+	  			<excludes>
+	  				<exclude>**/*.java</exclude>
+	  			</excludes>
+	  		</resource>
+	  	</resources>
+
+		<!-- 소스 이외의 테스트 리소스 파일들의 루프 패스를 지정 -->
+	  	<testResources>
+	  		<testResource>
+	  			<directory>${basedir}/test</directory>
+	  			<excludes>
+	  				<exclude>**/*.java</exclude>
+	  			</excludes>
+	  		</testResource>
+	  		<testResource>
+	  			<directory>${basedir}/test/resource</directory>
+	  			<excludes>
+	  				<exclude>**/*.java</exclude>
+	  			</excludes>
+	  		</testResource>
+	  	</testResources>
+		
+		<!-- plug-in 관련 설정 -->
+		<plugins>
+		
+			<!-- :::::::::: war-plugin :::::::::: -->
+	  		<plugin>
+	  			<groupId>org.apache.maven.plugins</groupId>
+	  			<artifactId>maven-war-plugin</artifactId>
+	  			<version>2.4</version>
+	  			<configuration>
+	  				<warSourceDirectory>WebContent</warSourceDirectory>
+	  				<webXml>WebContent/WEB-INF/web.xml</webXml>
+	  				<!-- 
+	  				<warSourceExcludes>WEB-INF/views/license/**</warSourceExcludes>
+	  				 -->
+	  			</configuration>
+	  		</plugin>
+	  		
+	  		<!-- :::::::::: compiler-plugin :::::::::: -->
+	  		<plugin>
+	    		<groupId>org.apache.maven.plugins</groupId>
+	    		<artifactId>maven-compiler-plugin</artifactId>
+	    		<version>3.1</version>
+	    		<configuration>
+	    			<source>1.6</source>
+	    			<target>1.6</target>
+	    			<encoding>UTF-8</encoding>
+	    			
+	    			<!-- 
+	    			<excludes>
+			           	<exclude>**/common/**/License*.java</exclude>			           	
+					</excludes>
+					 -->
+	    		</configuration>
+	    	</plugin>
+	    	
+	    	<!-- :::::::::: site-plugin :::::::::: -->
+	  		<plugin> 
+	  			<groupId>org.apache.maven.plugins</groupId>
+	  			<artifactId>maven-site-plugin</artifactId>
+	  			<version>2.3</version>
+	  			<configuration>
+	  				<locales>ko</locales>
+	  				<inputEncoding>UTF-8</inputEncoding>
+	  				<outputEncoding>UTF-8</outputEncoding>
+	  			</configuration>
+	  		</plugin>
+	  		
+	  		<!-- :::::::::: deploy-plugin :::::::::: -->
+	  		<plugin>
+	  			<groupId>org.apache.maven.plugins</groupId>
+	  			<artifactId>maven-deploy-plugin</artifactId>
+	  			<version>2.7</version>
+	  		</plugin>
+	  		
+	  		<!-- :::::::::: tomcat-plugin :::::::::: -->
+	  		<!-- Pdf Gateway의 변환 테스트를 위해 일시적으로 주석 처리.
+	  		     Jenkins 서버와 로컬 PC가 같은 DB를 바라보고 있으므로 예상외의 결과가 나옴. 
+	  		<plugin>
+				<groupId>org.apache.tomcat.maven</groupId>
+				<artifactId>tomcat6-maven-plugin</artifactId>
+				<version>2.0-beta-1</version>
+				<configuration>
+	  				<url>http://211.174.156.95:8080/manager/html</url>
+	  				<username>epapyrus</username>
+	  				<password>epapyrus</password>	
+	  				<charset>UTF-8</charset>
+	  				<update>true</update>
+	  				<warFile>C:\.jenkins\jobs\sdp7\workspace\target\sdp7.war</warFile>  				
+	  			</configuration>
+	  			<executions>
+	  				<execution>
+	  					<phase>site</phase>
+	  					<goals>
+	  						<goal>deploy</goal>
+	  					</goals>
+	  				</execution>
+	  			</executions>
+			</plugin>  		 
+			-->
+	  		
+	  		<!-- :::::::::: antrun-plugin :::::::::: -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.7</version>
+	            <executions>
+		  			<execution>
+		  				<phase>site</phase>
+		  				<goals>
+		  					<goal>run</goal>
+		  				</goals>
+		  				<configuration>
+	            			<tasks>
+								<copy todir="${basedir}/target/site/api-doc/resources">
+									<fileset dir="${basedir}/resources/javadoc/images" />
+								</copy>     
+								<copy todir="C:\.jenkins\jobs\sdp7-core\site\api-doc\resources">
+									<fileset dir="${basedir}/resources/javadoc/images" />
+								</copy> 
+	            			</tasks>
+	            		</configuration>
+		  			</execution>
+		  		</executions>
+			</plugin>	  		
+			
+			<!-- :::::::::: resource-plugin :::::::::: -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.5</version>
+				<configuration>
+					<encoding>UTF-8</encoding>
+				</configuration>
+			</plugin>
+			
+			<!-- :::::::::: surefire-plugin :::::::::: -->
+			<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.14.1</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.surefire</groupId>
+                        <artifactId>surefire-junit47</artifactId>
+                        <version>2.14.1</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                	<!-- 
+                	<groups>com.epapyrus.gateway.CommonJUnitGroups</groups>
+                    <excludedGroups>com.ubiteck.IntegrationTest</excludedGroups>
+                    <includes>
+                        <include>**/common/**/*Test.class</include>
+                    </includes>
+                     -->                    
+                </configuration>                
+             </plugin>
+		</plugins>		
+		
+	</build>  
+
+
+	<!-- ===== Reporting Description ===== -->	
+	<reporting>
+		
+		<plugins>
+		
+			<!-- :::::::::: jxr-reporting :::::::::: -->
+	 		<plugin>
+	 			<groupId>org.apache.maven.plugins</groupId>
+	 			<artifactId>maven-jxr-plugin</artifactId>
+	 			<version>2.3</version>
+	 			<configuration>
+	 				<inputEncoding>UTF-8</inputEncoding>
+	 				<outputEncoding>UTF-8</outputEncoding>
+	 			</configuration>
+	 		</plugin>
+
+			<!-- :::::::::: surefire-reporting :::::::::: -->	  		
+	  		<plugin>
+	  			<groupId>org.codehaus.mojo</groupId>
+	  			<artifactId>surefire-report-maven-plugin</artifactId>
+	  			<configuration>
+			        <encoding>UTF-8</encoding>
+			        <inputEncoding>UTF-8</inputEncoding>
+			        <outputEncoding>UTF-8</outputEncoding>
+			    </configuration>
+	  			<version>2.0-beta-1</version>
+	  			<reportSets>
+	  				<reportSet>
+	  					<reports>
+	  						<report>report-only</report>
+	  					</reports>
+	  				</reportSet>
+	  			</reportSets>	  			
+	  		 	<!-- 환경설정 옵션 사항
+	  		 	<configuration>
+		           <argLine>-Xms512m -Xmx512m</argLine>
+		           <disableXmlReport>true</disableXmlReport>
+         		</configuration>	 -->  		 	
+	  		 	<!-- <inherited>true</inherited>
+	  		 	<configuration>
+	  		 		<forkMode>always</forkMode>
+	  		 		<reportFormat>xml</reportFormat>
+	  		 		<argLine>-Xms512m -Xmx1024m -XX:PermSize=256m -XX:MaxPermSize=512m</argLine>
+	  		 	</configuration> 
+	  		 	-->
+	  		</plugin>
+			
+			<!-- :::::::::: javancss-reporting :::::::::: -->
+			<plugin>
+	  			<groupId>org.codehaus.mojo</groupId>
+	  			<artifactId>javancss-maven-plugin</artifactId>
+	  			<version>2.0</version>
+	  			<configuration>
+	  				<failOnError>false</failOnError>
+	  				<sourceEncoding>UTF-8</sourceEncoding>  				
+	  			</configuration>
+	  		</plugin>
+
+			<!-- :::::::::: findbug-reporting :::::::::: -->
+			<plugin>
+	  			<groupId>org.codehaus.mojo</groupId>
+	  			<artifactId>findbugs-maven-plugin</artifactId>
+	  			<version>2.3.2</version>
+	  			<configuration>
+	  				<findbugsXmlOutput>true</findbugsXmlOutput>
+	  				<xmlOutput>true</xmlOutput>
+	  				<threshold>Normal</threshold>
+	  				<effort>Default</effort>
+	  				<!--
+	  				<includeFilterFile>
+	  					${project.parent.basedir}/findbugs-include.xml
+	  				</includeFilterFile>
+	  				<excludeFilterFile>
+						${project.parent.basedir}/findbugs-exclude.xml
+	  				</excludeFilterFile>
+	  				 -->  				
+	  			</configuration>
+	  		</plugin>
+			
+			<!-- :::::::::: checkstyle-reporting :::::::::: -->			
+	  		<plugin>
+	  			<groupId>org.apache.maven.plugins</groupId>
+	  			<artifactId>maven-checkstyle-plugin</artifactId>
+	  			<version>2.8</version>
+	  			<configuration>
+	  				<outputFileFormat>xml</outputFileFormat>
+	  				<configLocation default-value="config/sun_checks.xml">
+	  					D:/ePapyrus_dev/java/05.etc/02.CheckStyle/ePapyrus_CheckStyle_20120129.xml
+	  				</configLocation>  				
+					<!--
+					<includes>**/src/**/*.java</includes>
+					<excludes>**/test/**/*.java</excludes>
+					<excludes>**/*Test.java</excludes>
+					-->
+	  				<encoding>UTF-8</encoding>
+	  			</configuration>
+	  		</plugin>
+
+			<!-- :::::::::: javadoc-reporting :::::::::: -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.8</version>
+				<configuration>
+					<windowtitle>SDP 7.0 - API Specification</windowtitle>
+					<doctitle>SDP 7.0 - API Specification</doctitle>
+					<header>SDP 7.0 API</header>					
+					<version>1.0</version>
+					<aggregate>true</aggregate>
+					<minmemory>128m</minmemory>
+					<maxmemory>256m</maxmemory>
+					<breakiterator>true</breakiterator>
+					<stylesheetfile>${basedir}/resources/javadoc/stylesheet.css</stylesheetfile>
+					<quiet>false</quiet>
+					<source>1.6</source>
+					<verbose>true</verbose>
+					<linksource>true</linksource>					
+					<outputDirectory>${project.build.directory}/javadoc</outputDirectory>
+					<reportOutputDirectory>${project.build.directory}/javadoc</reportOutputDirectory>
+					<destDir>api-doc</destDir>					
+					<locale>ko_KR</locale>
+					<encoding>UTF-8</encoding>
+					<charset>UTF-8</charset>
+					<docencoding>UTF-8</docencoding>
+				</configuration>			
+			</plugin>
+
+			<!-- :::::::::: cobertura-reporting :::::::::: -->
+	  		<plugin>
+	  			<groupId>org.codehaus.mojo</groupId>
+	  			<artifactId>cobertura-maven-plugin</artifactId>
+	  			<version>2.5.1</version>
+	  			<configuration>
+	  				<formats>
+	  					<format>html</format>
+	  					<format>xml</format>
+	  				</formats>
+	  				<!-- 
+	  				<instrumentation>
+	  					<excludes>
+	  						<exclude>**/*Test.class</exclude>  						
+	  					</excludes>
+	  				</instrumentation> 
+	  				-->  				
+	  			</configuration>
+	  		</plugin>
+  		
+  			<!-- :::::::::: pmd-reporting :::::::::: -->
+	  		<plugin>
+	  			<groupId>org.apache.maven.plugins</groupId>
+	  			<artifactId>maven-pmd-plugin</artifactId>
+	  			<configuration>
+	  				<sourceEncoding>UTF-8</sourceEncoding>
+	  				<targetJdk>1.5</targetJdk>
+	  				<rulesets>
+	  					<ruleset>${basedir}/test/resource/pmd/pmd.xml</ruleset>
+	  				</rulesets>
+	  				<includes>
+	  					<include>**/*.java</include>
+	  				</includes>
+	  				<!--
+	  				<excludes>
+	  					<exclude>**/*bar.java</exclude>
+	  				</excludes>
+	  				<excludeRoots>src/main/java/stubs</excludeRoots>
+	  				 -->
+	  			</configuration>
+	  			<version>2.6</version>
+	  			<reportSets>
+					<reportSet>
+						<reports>
+							<!--<report>pmd</report>-->
+							<report>cpd</report>
+						</reports>
+					</reportSet>
+				</reportSets>
+	  		</plugin>
+
+			<!-- :::::::::: jdepend-reporting :::::::::: -->
+	  		<plugin>
+	  			<groupId>org.codehaus.mojo</groupId>
+	  			<artifactId>jdepend-maven-plugin</artifactId>
+	  			<version>2.0-beta-2</version>
+	  			<configuration>
+	  				<encoding>UTF-8</encoding>
+	  				<classDirectory>${basedir}/target/classes</classDirectory>
+	  				<outputDirectory>${basedir}/target/classes/site</outputDirectory>
+	  			</configuration>
+	  		</plugin>
+		</plugins>
+		
+	</reporting>
+	
+	 <!-- <scm>
+        <developerConnection>scm:svn:<Subversion project path to trunk here></developerConnection>
+        <connection>scm:svn:<Subversion project path to trunk here></connection>
+        <url><Subversion project path to trunk here></url>
+    </scm> --> 
+</project>
