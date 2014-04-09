@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-modules id="moduleCoreId" project-version="1.5.0">
+    <wb-module deploy-name="Vert.x-mod.socket.io">
+        <wb-resource deploy-path="/" source-path="/WebContent" tag="defaultRootSource"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
+        <property name="context-root" value="Vert.x-mod.socket.io"/>
+        <property name="java-output-path" value="/Vert.x-mod.socket.io/build/classes"/>
+    </wb-module>
+</project-modules>
