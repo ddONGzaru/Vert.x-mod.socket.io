@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/rabbit http://www.springframework.org/schema/rabbit/spring-rabbit-1.1.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+
+<!-- ====================================================================== -->
+<!--     import pdf-gateway.xml                                             -->
+<!-- ====================================================================== -->
+	
+	<import resource="pdf-gateway.xml"/>
+	
+			
+<!-- ====================================================================== -->
+<!--     Component Scan Configuration                                       -->
+<!-- ====================================================================== -->	
+		
+	<context:component-scan base-package="com.epapyrus.sdp.gateway.pdf" use-default-filters="false">		
+		<context:include-filter type="aspectj" expression="com.epapyrus.sdp.gateway.pdf.amqp..*"/>				
+	</context:component-scan>
+
+	
+<!-- ====================================================================== -->
+<!--     Amqp JobTicket Queue Configuration				   				    -->		
+<!-- ====================================================================== -->
+
+	<bean id="amqpJobTicketQueue" class="java.util.concurrent.ArrayBlockingQueue">
+		<constructor-arg value="${amqp.job.ticket.queue.capacity}"/>		
+	</bean>
+	
+				
+<!-- ====================================================================== -->
+<!--     RabbitMQ Configuration												-->		
+<!-- ====================================================================== -->
+
+	<rabbit:connection-factory id="connectionFactory" 
+		host="${amqp.server.ip}" port="${amqp.server.port}" username="${amqp.username}" password="${amqp.password}"/>
+	
+	<rabbit:template id="amqpTemplate" connection-factory="connectionFactory" />
+	
+	<rabbit:admin connection-factory="connectionFactory" />
+	
+	<rabbit:queue name="${amqp.queue.name}" />
+		
+		
+<!-- ====================================================================== -->
+<!--     RabbitMQ Listener Configuration				  				    -->		
+<!-- ====================================================================== -->
+		
+	<!-- 
+	<rabbit:listener-container connection-factory="connectionFactory">
+		<rabbit:listener ref="${job.ticket.manager}"  queue-names="${amqp.queue.name}"/>
+	</rabbit:listener-container> 
+	-->	
+
+</beans>
+
+

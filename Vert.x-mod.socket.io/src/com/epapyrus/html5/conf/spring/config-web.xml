@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd">
+
+<!-- ====================================================================== -->
+<!--     MVC Annotation Configuration                                       -->
+<!-- ====================================================================== -->
+
+	<mvc:annotation-driven/>														
+
+	<mvc:default-servlet-handler/>
+	
+	<!--
+		WAS별 default servlet name
+		Tomcat    : default
+		Resin     : resin-file
+		Weblogic  : FileServlet
+		WebSphere : SimpleFileServlet
+		jetty     : default
+		jboss     : default
+		jeus      : WorkerServlet
+
+		외국 벤더 WAS인 경우에는 스프링이 자동으로 default-servlet-name을 지정하므로 설정시 생략가능하나,
+		Jeus같은 경우는 아래와 같이 수동으로 지정해 주어야 함.				
+		<mvc:default-servlet-handler default-servlet-name="WorkerServlet"/> 
+	-->
+	
+	<!-- <mvc:resources mapping="/js/**" location="/js/" />
+	<mvc:resources mapping="/css/**" location="/css/" />
+	<mvc:resources mapping="/images/**" location="/images/" /> -->
+
+<!-- ====================================================================== -->
+<!--     View Resolver Configuration                                        -->
+<!-- ====================================================================== -->	
+
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver"
+		p:prefix="/WEB-INF/views/" p:suffix=".jsp" p:order="1" />
+	
+	<bean class="org.springframework.web.servlet.view.BeanNameViewResolver" p:order="0"/>
+
+
+<!-- ====================================================================== -->
+<!--     Exception Resolver Configuration                                   -->
+<!-- ====================================================================== -->
+	
+	<bean class="org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver" p:order="1"/>
+	
+	<bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<property name="defaultErrorView" value="error"/>
+		<property name="exceptionMappings">
+			<map>
+				<entry key="org.springframework.beans.factory.BeanCreationException" value="error"/>
+				<entry key="IllegalStateException" value="error"/>
+			</map>
+		</property>
+		<property name="order" value="2"/>
+	</bean>
+
+
+<!-- ====================================================================== -->
+<!--     Redirect URL Mapping                                               -->
+<!-- ====================================================================== -->
+
+	<!-- 사용 예 : 
+	 <mvc:view-controller path="common/server.epapyrus" view-name="common/login"/> 
+	 -->
+  
+</beans>

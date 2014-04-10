@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:dwr="http://www.directwebremoting.org/schema/spring-dwr"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:lang="http://www.springframework.org/schema/lang"
+	xsi:schemaLocation="http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-3.2.xsd
+		http://www.directwebremoting.org/schema/spring-dwr http://www.directwebremoting.org/schema/spring-dwr-2.0.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+		
+<!-- ====================================================================== -->
+<!--     Component Scan Configuration                                       -->
+<!-- ====================================================================== -->	
+		
+	<context:component-scan base-package="com.epapyrus.sdp.gateway.pdf" use-default-filters="false">		
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Service"/>
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Component"/>	
+		
+		<context:exclude-filter type="aspectj" expression="com.epapyrus.sdp.gateway.pdf.amqp..*"/>		
+	</context:component-scan>
+
+
+<!-- ====================================================================== -->
+<!--     Job Queue Configuration                                            -->
+<!-- ====================================================================== -->
+
+	<bean id="jobTicketQueue" class="java.util.concurrent.ArrayBlockingQueue">
+		<constructor-arg value="${job.ticket.queue.capacity}"/>		
+	</bean>
+	
+	<bean id="virtualPrinterQueue" class="java.util.concurrent.ArrayBlockingQueue">
+		<constructor-arg value="${virtual.printer.queue.size}"/>		
+	</bean>
+	
+	<util:list id="virtualPrinterList">
+		<value>${virtual.printer.01}</value>
+		<value>${virtual.printer.02}</value>
+		<value>${virtual.printer.03}</value>
+		<value>${virtual.printer.04}</value>
+		<value>${virtual.printer.05}</value>
+		<value>${virtual.printer.06}</value>
+		<value>${virtual.printer.07}</value>
+		<value>${virtual.printer.08}</value>
+	</util:list>
+	
+
+<!-- ====================================================================== -->
+<!--     Job Conv Configuration                                             -->
+<!-- ====================================================================== -->
+	
+	<alias name="${pdf.conv.service}" alias="pdfConvService" />
+	
+	<alias name="${hotfolder.job.ticket.builder}" alias="hotfolderJobTicketBuilder" />
+	
+	<alias name="${hotfolder.job.dispatcher}" alias="hotfolderJobDispatcher" />
+
+	<bean id="hotfolderJobTicketList" class="java.util.concurrent.CopyOnWriteArraySet" />
+	
+	<util:map id="hotfolderExtraJobParserMap" map-class="java.util.HashMap">
+		<entry key="AF" value-ref="fileAttachParser"/>
+		<entry key="BM" value-ref="bookmarkParser"/>
+		<entry key="EI" value-ref="extractImageParser"/>
+		<entry key="EP" value-ref="extractPageParser"/>
+		<entry key="ET" value-ref="extractTextParser"/>
+		<entry key="IS" value-ref="imageWatermarkParser"/>
+		<entry key="LS" value-ref="textWatermarkParser"/>
+		<entry key="MG" value-ref="mergeParser"/>
+		<entry key="PE" value-ref="permsAndEncParser"/>
+	</util:map>
+	
+	
+<!-- ====================================================================== -->
+<!--     Scheduler Configuration                                            -->
+<!-- ====================================================================== -->
+	
+	<task:annotation-driven executor="executor"/>
+	
+	<task:executor id="executor" rejection-policy="DISCARD" 
+		pool-size="${job.handler.thread.max.active.size}" queue-capacity="${job.handler.thread.queue.capacity}"/>
+	
+	<task:scheduled-tasks scheduler="scheduler">
+		<task:scheduled ref="${job.ticket.manager}" method= "publish" cron="${job.ticket.publish.schedule.cron}" />	
+	</task:scheduled-tasks>
+	
+<!-- ====================================================================== -->
+<!--     FTP Monitor Configuration                                          -->
+<!-- ====================================================================== -->	
+	
+	<!-- ===== FtpMonitorAccessor List Configuration ===== -->  
+	<util:list id="ftpMonitorAccessorList">
+		<ref bean="ftpMonitorAccessor-1" />
+		<!-- 
+		<ref bean="ftpMonitorAccessor-2" /> 
+		-->
+	</util:list>
+		
+	<bean id="ftpMonitorAccessor-1" class="com.epapyrus.sdp.gateway.pdf.ftpmonitor.FtpMonitorAccessor"
+		p:host=       "#{ftp_monitor['ftp.monitor.01.host']?:'0.0.0.0'}"
+		p:port=       "#{ftp_monitor['ftp.monitor.01.port']?:21}"
+		p:id=         "#{ftp_monitor['ftp.monitor.01.id']?:'user'}"
+		p:pwd=        "#{ftp_monitor['ftp.monitor.01.pwd']?:'pwd'}"
+		p:watchDir=   "#{ftp_monitor['ftp.monitor.01.watch.dir']?:'/'}"
+		p:passiveMode="#{ftp_monitor['ftp.monitor.01.passive']?:true}"
+		p:encoding=   "#{ftp_monitor['ftp.monitor.01.encoding']?:'UTF-8'}"
+		p:subEncoding="#{ftp_monitor['ftp.monitor.01.encoding.sub']?:''}"
+		p:filetype=   "#{ftp_monitor['ftp.monitor.01.file.type']?:2}"
+		p:bufferSize= "#{ftp_monitor['ftp.monitor.01.buffer.size']?:1024}" />
+		
+		
+	<bean id="ftpMonitorAccessor-2" class="com.epapyrus.sdp.gateway.pdf.ftpmonitor.FtpMonitorAccessor"
+		p:host=       "#{ftp_monitor['ftp.monitor.02.host']?:'0.0.0.0'}"
+		p:port=       "#{ftp_monitor['ftp.monitor.02.port']?:21}"
+		p:id=         "#{ftp_monitor['ftp.monitor.02.id']?:'user'}"
+		p:pwd=        "#{ftp_monitor['ftp.monitor.02.pwd']?:'pwd'}"
+		p:watchDir=   "#{ftp_monitor['ftp.monitor.02.watch.dir']?:'/'}"
+		p:passiveMode="#{ftp_monitor['ftp.monitor.02.passive']?:true}"
+		p:encoding=   "#{ftp_monitor['ftp.monitor.02.encoding']?:'UTF-8'}"
+		p:subEncoding="#{ftp_monitor['ftp.monitor.02.encoding.sub']?:''}"
+		p:filetype=   "#{ftp_monitor['ftp.monitor.02.file.type']?:2}"
+		p:bufferSize= "#{ftp_monitor['ftp.monitor.02.buffer.size']?:1024}" />		
+		
+</beans>
+
+

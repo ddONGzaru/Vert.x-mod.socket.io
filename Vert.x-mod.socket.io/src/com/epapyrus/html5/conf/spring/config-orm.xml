@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:mybatis="http://mybatis.org/schema/mybatis-spring"
+	xmlns:c="http://www.springframework.org/schema/c"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd
+		http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring.xsd">
+
+<!-- ====================================================================== -->
+<!--     MyBatis Component Scan Configuration                               -->
+<!-- ====================================================================== -->			
+
+	<mybatis:scan base-package="com.epapyrus.sdp" annotation="org.springframework.stereotype.Repository"/>
+	
+	
+<!-- ====================================================================== -->
+<!--     DataSource Configuration                                           -->
+<!-- ====================================================================== -->
+	
+	<bean id="dataSource-oracle" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close"
+		p:driverClass="${oracle.jdbc.driver}"
+		p:jdbcUrl="${oracle.jdbc.url}"
+		p:user="${oracle.jdbc.username}"
+		p:password="${oracle.jdbc.password}" />
+		
+	<bean id="dataSource-mysql" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close"
+		p:driverClass="${mysql.jdbc.driver}"
+		p:jdbcUrl="${mysql.jdbc.url}"
+		p:user="${mysql.jdbc.username}"
+		p:password="${mysql.jdbc.password}" />
+		
+	<bean id="dataSource-tibero" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close"
+		p:driverClass="${tibero.jdbc.driver}"
+		p:jdbcUrl="${tibero.jdbc.url}"
+		p:user="${tibero.jdbc.username}"
+		p:password="${tibero.jdbc.password}" />
+		
+	<bean id="dataSource-mssql" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close"
+		p:driverClass="${mssql.jdbc.driver}"
+		p:jdbcUrl="${mssql.jdbc.url}"
+		p:user="${mssql.jdbc.username}"
+		p:password="${mssql.jdbc.password}" />			
+
+  	<bean id="dataSource" class="net.sf.log4jdbc.Log4jdbcProxyDataSource">
+    	<constructor-arg ref="dataSource-${db.vendor}" />
+    	<property name="logFormatter"> 
+      		<bean class="com.epapyrus.sdp.commons.logger.Log4JdbcSdpFormatter"> 
+        		<property name="loggingType" value="MULTI_LINE" /> 
+        		<property name="sqlPrefix" value="[SQL Query ]" /> 
+      		</bean> 
+    	</property> 
+	</bean> 
+	
+
+<!-- ====================================================================== -->
+<!--     MyBatis sqlMapClient Configuration                                  -->
+<!-- ====================================================================== -->
+		
+	<bean id="sqlSessionFactory" class="com.epapyrus.sdp.commons.support.SqlSessionFactoryBean"
+		p:dataSource-ref="dataSource"		
+		p:configLocation="classpath:com/epapyrus/sdp/commons/conf/mybatis/config-mybatis.xml" />	
+  
+<!-- ====================================================================== -->
+<!--     Transaction Manager Configuration                                  -->
+<!-- ====================================================================== -->
+		
+	<bean name="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager"
+        p:dataSource-ref="dataSource"/>
+
+	        	
+<!-- ====================================================================== -->
+<!--     SQLMapper Params Configuration                                     -->
+<!-- ====================================================================== -->    
+     
+    <util:map id="sqlStaticParams" map-class="java.util.HashMap">
+
+        <!-- JOB_CONV TABLE -->
+        <entry key="jobConvTable"                  value="${job.conv.table}"/>
+        <entry key="jobConvJobId"                  value="${job.conv.jobId}"/>
+        <entry key="jobConvSrcFile"                value="${job.conv.srcFile}"/>
+        <entry key="jobConvDestFile"               value="${job.conv.destFile}"/>
+        <entry key="jobConvSrcPwd"                 value="${job.conv.srcPwd}"/>
+        <entry key="jobConvJobStatus"              value="${job.conv.jobStatus}"/>
+        <entry key="jobConvExtraJobs"              value="${job.conv.extraJobs}"/>
+        <entry key="jobConvPage"                   value="${job.conv.page}"/>
+        <entry key="jobConvReqDate"                value="${job.conv.reqDate}"/>
+        <entry key="jobConvResDate"                value="${job.conv.resDate}"/>
+        <entry key="jobConvStartDate"              value="${job.conv.startDate}"/>
+        <entry key="jobConvConvTime"               value="${job.conv.convTime}"/>
+        <entry key="jobConvSrcFileSize"            value="${job.conv.srcFileSize}"/>
+        <entry key="jobConvDestFileSize"           value="${job.conv.destFileSize}"/>
+        <entry key="jobConvErrCode"                value="${job.conv.errCode}"/>
+        <entry key="jobConvErrMsg"                 value="${job.conv.errMsg}"/>
+        <entry key="jobConvRetryCnt"               value="${job.conv.retryCnt}"/>
+        <entry key="jobConvServerType"             value="${job.conv.serverType}"/>
+        <entry key="jobConvServerIp"               value="${job.conv.serverIp}"/>
+        <entry key="jobConvHifiProfile"            value="${job.conv.hifiProfile}"/>
+
+        <!-- JOB_BOOKMARK TABLE -->
+        <entry key="jobBookmarkTable"              value="${job.bookmark.table}"/>
+        <entry key="jobBookmarkJobId"              value="${job.bookmark.jobId}"/>
+        <entry key="jobBookmarkPage"               value="${job.bookmark.page}"/>
+        <entry key="jobBookmarkTitle"              value="${job.bookmark.title}"/>
+        <entry key="jobBookmarkNode"               value="${job.bookmark.node}"/>
+        <entry key="jobBookmarkParentNode"         value="${job.bookmark.parentNode}"/>
+        
+        <!-- JOB_ATTACH_FILE TABLE -->
+        <entry key="jobAttachFileTable"            value="${job.attach.file.table}"/>
+        <entry key="jobAttachFileJobid"            value="${job.attach.file.jobId}"/>
+        <entry key="jobAttachFileSeq"              value="${job.attach.file.seq}"/>
+        <entry key="jobAttachFileAttachfile"       value="${job.attach.file.attachFile}"/>
+        <entry key="jobAttachFilePage"             value="${job.attach.file.page}"/>
+        <entry key="jobAttachFileXpos"             value="${job.attach.file.xPos}"/>
+        <entry key="jobAttachFileYpos"             value="${job.attach.file.yPos}"/>
+        
+        <!-- JOB_EXTRACT_IMAGE TABLE -->
+        <entry key="jobExtractImageTable"          value="${job.extract.image.table}"/>
+        <entry key="jobExtractImageJobid"          value="${job.extract.image.jobId}"/>
+        <entry key="jobExtractImageImagetype"      value="${job.extract.image.imageType}"/>
+        <entry key="jobExtractImagePage"           value="${job.extract.image.page}"/>
+        <entry key="jobExtractImageOutdir"         value="${job.extract.image.outDir}"/>
+        <entry key="jobExtractImageIsmultipagetif" value="${job.extract.image.isMultiPageTif}"/>
+        <entry key="jobExtractImageScale"          value="${job.extract.image.scale}"/>
+
+        <!-- JOB_EXTRACT_TEXT TABLE -->
+        <entry key="jobExtractTextTable"           value="${job.extract.text.table}"/>
+        <entry key="jobExtractTextJobid"           value="${job.extract.text.jobId}"/>
+        <entry key="jobExtractTextPage"            value="${job.extract.text.page}"/>
+        <entry key="jobExtractTextOutdir"          value="${job.extract.text.outDir}"/>
+        <entry key="jobExtractTextSplitPage"       value="${job.extract.text.split.page}"/>
+        
+        <!-- JOB_EXTRACT_PAGE TABLE -->
+        <entry key="jobExtractPageTable"           value="${job.extract.page.table}"/>
+        <entry key="jobExtractPageJobid"           value="${job.extract.page.jobId}"/>
+        <entry key="jobExtractPagePage"            value="${job.extract.page.page}"/>
+        <entry key="jobExtractPageOutdir"          value="${job.extract.page.outDir}"/>
+        <entry key="jobExtractPageSplitPage"       value="${job.extract.page.split.page}"/>
+
+        <!-- JOB_IMAGE_STAMP TABLE -->
+        <entry key="jobImageStampTable"            value="${job.image.stamp.table}"/>
+        <entry key="jobImageStampJobid"            value="${job.image.stamp.jobId}"/>
+        <entry key="jobImageStampSeq"              value="${job.image.stamp.seq}"/>
+        <entry key="jobImageStampImagepath"        value="${job.image.stamp.imagePath}"/>
+        <entry key="jobImageStampHormargin"        value="${job.image.stamp.horMargin}"/>
+        <entry key="jobImageStampVermargin"        value="${job.image.stamp.verMargin}"/>
+        <entry key="jobImageStampOpacity"          value="${job.image.stamp.opacity}"/>
+        <entry key="jobImageStampAlignment"        value="${job.image.stamp.alignment}"/>
+        <entry key="jobImageStampWidth"            value="${job.image.stamp.width}"/>
+        <entry key="jobImageStampHeight"           value="${job.image.stamp.height}"/>
+        <entry key="jobImageStampDisplay"          value="${job.image.stamp.display}"/>
+        <entry key="jobImageStampPrint"            value="${job.image.stamp.print}"/>
+
+        <!-- JOB_LETTER_STAMP TABLE -->
+        <entry key="jobLetterStampTable"           value="${job.letter.stamp.table}"/>
+        <entry key="jobLetterStampJobid"           value="${job.letter.stamp.jobId}"/>
+        <entry key="jobLetterStampSeq"             value="${job.letter.stamp.seq}"/>
+        <entry key="jobLetterStampText"            value="${job.letter.stamp.text}"/>
+        <entry key="jobLetterStampHormargin"       value="${job.letter.stamp.horMargin}"/>
+        <entry key="jobLetterStampVermargin"       value="${job.letter.stamp.verMargin}"/>
+        <entry key="jobLetterStampOpacity"         value="${job.letter.stamp.opacity}"/>
+        <entry key="jobLetterStampAlignment"       value="${job.letter.stamp.alignment}"/>
+        <entry key="jobLetterStampBold"            value="${job.letter.stamp.bold}"/>
+        <entry key="jobLetterStampItalic"          value="${job.letter.stamp.italic}"/>
+        <entry key="jobLetterStampTextsize"        value="${job.letter.stamp.textSize}"/>
+        <entry key="jobLetterStampTextspace"       value="${job.letter.stamp.textSpace}"/>
+        <entry key="jobLetterStampRotation"        value="${job.letter.stamp.rotation}"/>
+        <entry key="jobLetterStampRgb_r"           value="${job.letter.stamp.rgb_R}"/>
+        <entry key="jobLetterStampRgb_g"           value="${job.letter.stamp.rgb_G}"/>
+        <entry key="jobLetterStampRgb_b"           value="${job.letter.stamp.rgb_B}"/>
+        <entry key="jobLetterStampFontname"        value="${job.letter.stamp.fontName}"/>
+        <entry key="jobLetterStampDisplay"         value="${job.letter.stamp.display}"/>
+        <entry key="jobLetterStampPrint"           value="${job.letter.stamp.print}"/>
+
+        <!-- JOB_MERGE TABLE -->
+        <entry key="jobMergeTable"                 value="${job.merge.table}"/>
+        <entry key="jobMergeJobid"                 value="${job.merge.jobId}"/>
+        <entry key="jobMergeSeq"                   value="${job.merge.seq}"/>
+        <entry key="jobMergeMergefile"             value="${job.merge.mergeFile}"/>
+        <entry key="jobMergePage"                  value="${job.merge.page}"/>
+        <entry key="jobMergeTitle"                 value="${job.merge.title}"/>
+        
+        <!-- JOB_PERMISSION -->
+		<entry key="jobPermsTable"                  value="${job.perms.table}"/>
+		<entry key="jobPermsJobId"                  value="${job.perms.jobId}"/>
+		<entry key="jobPermsUserPwd"                value="${job.perms.userPwd}"/>
+		<entry key="jobPermsOwnerPwd"               value="${job.perms.ownerPwd}"/>
+		<entry key="jobPermsCurUserPwd"             value="${job.perms.curUserPwd}"/>
+		<entry key="jobPermsDegradedPrinting"       value="${job.perms.degradedPrinting}"/>
+		<entry key="jobPermsModifyContents"         value="${job.perms.modifyContents}"/>
+		<entry key="jobPermsCopy"                   value="${job.perms.copy}"/>
+		<entry key="jobPermsModifyAnnotations"      value="${job.perms.modifyAnnotations}"/>
+		<entry key="jobPermsFillIn"                 value="${job.perms.fillIn}"/>
+		<entry key="jobPermsScreenReaders"          value="${job.perms.screenReaders}"/>
+		<entry key="jobPermsAssembly"               value="${job.perms.assembly}"/>
+		<entry key="jobPermsPrinting"               value="${job.perms.printing}"/>
+        
+    </util:map>
+
+</beans>

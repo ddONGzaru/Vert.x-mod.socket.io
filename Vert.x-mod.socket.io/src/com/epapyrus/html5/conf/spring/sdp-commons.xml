@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+		
+<!-- ====================================================================== -->
+<!--     Component Scan Configuration                                       -->
+<!-- ====================================================================== -->			
+		
+	<context:component-scan base-package="com.epapyrus.sdp.commons" use-default-filters="false">		
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Service"/>
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Component"/>
+		
+		<!-- 
+			CommonLogger에서 AOP를 사용할 때 ProxyClass를 생성하는데 ProxyClass에서 디버깅하기에는 무리가 있음. 
+			디버깅할때는 ProxyClass 생성을 막기위하여 아래 주석 처리된 부분을 주석 해제 하여 사용하여야 함.
+		-->
+		<context:exclude-filter type="aspectj" expression="com.epapyrus.sdp.commons.logger.CommonLogger"/>
+	</context:component-scan>
+	
+
+<!-- ====================================================================== -->
+<!--     Common Scheduler Configuration                                     -->
+<!-- ====================================================================== -->
+
+	<task:scheduler id="scheduler" pool-size="10"/>
+	
+	<task:scheduled-tasks scheduler="scheduler" >
+		<task:scheduled ref="cleanDirectoryScheduler" method= "clean" cron="${clean.directory.scheduler.cron}" />	
+		<task:scheduled ref="compressLogScheduler" method= "execute" cron="${compress.log.scheduler.cron}" />		
+	</task:scheduled-tasks>
+
+	
+<!-- ====================================================================== -->
+<!--     Cipher Configuration                                               -->
+<!-- ====================================================================== -->
+	
+	<alias name="${cipher.type}" alias="cipher" />
+		
+		
+<!-- ====================================================================== -->
+<!--     File Transfer Configuration                                        -->
+<!-- ====================================================================== -->
+
+	<!-- ===== File Gateway Service Configuration ===== -->
+	<alias name="${file.gateway.service}" alias="fileGatewayService" />
+
+	<!-- ===== Ftp Access Configuration ===== -->  
+	<util:list id="ftpAccessInfoList" value-type="com.epapyrus.sdp.commons.filegateway.FtpAccessInfo">
+		<ref bean="ftpAccessInfo-1" />
+		<ref bean="ftpAccessInfo-2" />
+	</util:list>
+		
+	<bean id="ftpAccessInfo-1" class="com.epapyrus.sdp.commons.filegateway.FtpAccessInfo" 
+		p:ftpType="#{ftp['ftp-1.ftpType']?:'ftp'}"
+		p:transferType="#{ftp['ftp-1.transferMode']?:'both'}"		
+		p:ip="#{ftp['ftp-1.ip']?:'0.0.0.0'}"  
+		p:port="#{ftp['ftp-1.port']?:'21'}"
+		p:id="#{ftp['ftp-1.id']?:'user'}"   	 
+		p:pwd="#{ftp['ftp-1.pwd']?:'pwd'}"
+		p:downloadRootDir="#{ftp['ftp-1.root.dir.download']?:'/'}"
+		p:uploadRootDir="#{ftp['ftp-1.root.dir.upload']?:'/'}"
+		p:passiveMode="#{ftp['ftp-1.passive']?:true}"   
+		p:encoding="#{ftp['ftp-1.encoding']?:'UTF-8'}"
+		p:subEncoding="#{ftp['ftp-1.encoding.sub']?:''}" 
+		p:filetype="#{ftp['ftp-1.filetype']?:2}"
+		p:rsaKey="#{ftp['ftp-1.rsa-key']?:'NO_KEY'}"
+		p:passphrase="#{ftp['ftp-1.passphrase']?:'NO_PWD'}"
+		p:bufferSize="#{ftp['ftp-1.bufferSize']?:1024}" /> 
+		
+	<bean id="ftpAccessInfo-2" class="com.epapyrus.sdp.commons.filegateway.FtpAccessInfo"
+		p:ftpType="#{ftp['ftp-2.ftpType']?:'ftp'}"	
+		p:transferType="#{ftp['ftp-2.transferMode']?:'upload'}"
+		p:ip="#{ftp['ftp-2.ip']?:'0.0.0.0'}"  
+		p:port="#{ftp['ftp-2.port']?:'21'}"
+		p:id="#{ftp['ftp-2.id']?:'user'}"   	 
+		p:pwd="#{ftp['ftp-2.pwd']?:'pwd'}"
+		p:downloadRootDir="#{ftp['ftp-2.root.dir.download']?:'/'}"
+		p:uploadRootDir="#{ftp['ftp-2.root.dir.upload']?:'/'}"
+		p:passiveMode="#{ftp['ftp-2.passive']?:true}"   
+		p:encoding="#{ftp['ftp-2.encoding']?:'UTF-8'}" 
+		p:subEncoding="#{ftp['ftp-2.encoding.sub']?:''}"
+		p:filetype="#{ftp['ftp-2.filetype']?:2}"
+		p:rsaKey="#{ftp['ftp-2.rsa-key']?:'NO_KEY'}" 
+		p:passphrase="#{ftp['ftp-2.passphrase']?:'NO_PWD'}"
+		p:bufferSize="#{ftp['ftp-2.bufferSize']?:1024}" />	
+	
+    	
+<!-- ====================================================================== -->
+<!--     Pdf Tools Service - 3rd party Configuration                        -->
+<!-- ====================================================================== -->
+
+	<!-- ===== DRM ===== -->	  
+	
+	<alias name="${pdf.tools.drm.handler}" alias="drmHandler" />
+	
+	<util:map id="drmConfigVendorMap" map-class="java.util.HashMap">
+        <entry key="softcamp"   value-ref="drmSoftcamp"/>
+	</util:map>	
+	
+	<!-- softcamp -->
+	<util:map id="drmSoftcamp" map-class="java.util.HashMap">
+        <entry key="drmId"         value="#{drm_softcamp['drm.softcamp.drm.id']?:''}"           value-type="java.lang.String"/>
+        <entry key="auth"          value="#{drm_softcamp['drm.softcamp.auth']?:''}"             value-type="java.lang.String"/>
+        <entry key="expireDate"    value="#{drm_softcamp['drm.softcamp.expire.date']?:''}"      value-type="java.lang.Integer"/>
+        <entry key="readLimit"     value="#{drm_softcamp['drm.softcamp.read.limit']?:''}"       value-type="java.lang.Integer"/>
+        <entry key="printLimit"    value="#{drm_softcamp['drm.softcamp.print.limit']?:''}"      value-type="java.lang.Integer"/>
+        <entry key="keyFilePath"   value="#{drm_softcamp['drm.softcamp.key.file.path']?:''}"    value-type="java.lang.String"/>
+        <entry key="systemName"    value="#{drm_softcamp['drm.softcamp.system.name']?:''}"      value-type="java.lang.String"/>
+        <entry key="encFileOption" value="#{drm_softcamp['drm.softcamp.enc.file.option']?:''}"  value-type="java.lang.Integer"/>        
+	</util:map>
+	
+	
+	<!-- ===== Timestamp ===== -->
+		
+	<alias name="${pdf.tools.timestamp.handler}" alias="timestampHandler" />
+	
+	<util:map id="timestampConfigMap" map-class="java.util.HashMap">
+        <entry key="etiming"   value-ref="etiming"/>
+	</util:map>	
+	
+	<!-- e-timing -->
+	<util:map id="etiming" map-class="java.util.HashMap">
+        <entry key="pkiApiType"       value="#{ts_etiming['timestamp.etiming.pki.api.type']?:''}"      value-type="java.lang.Integer"/>
+        <entry key="gpkiApiLibPath"   value="#{ts_etiming['timestamp.etiming.gpki.api.lib.path']?:''}" value-type="java.lang.String"/>
+        <entry key="accessLocation"   value="#{ts_etiming['timestamp.etiming.access.location']?:''}"   value-type="java.lang.String"/>
+        <entry key="stampShape"       value="#{ts_etiming['timestamp.etiming.stamp.shape']?:''}"       value-type="java.lang.Integer"/>
+        <entry key="stampBackground"  value="#{ts_etiming['timestamp.etiming.stamp.background']?:''}"  value-type="java.lang.Integer"/>
+        <entry key="posX"             value="#{ts_etiming['timestamp.etiming.stamp.pos.x']?:''}"       value-type="java.lang.Double"/>
+        <entry key="posY"             value="#{ts_etiming['timestamp.etiming.stamp.pos.y']?:''}"       value-type="java.lang.Double"/>
+	</util:map>
+	
+	
+	<!-- ===== Digital Signature ===== -->  
+	
+	<alias name="${pdfTools.SignatureHandler}" alias="signatureHandler" />
+		
+	<util:list id="signMethodArgsList-prepareSignature">
+		<value>prepareOption</value>
+		<value>targetFile</value>
+		<value>destFile</value>
+		<value>contentFile</value>
+	</util:list>
+
+	<util:list id="signMethodArgsList-injectToken">
+		<value>injectOption</value>
+		<value>destFile</value>
+		<value>signedDataFile</value>
+		<value>offset</value>
+	</util:list>
+
+</beans>

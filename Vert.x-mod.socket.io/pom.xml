@@ -51,6 +51,13 @@
 			<version>1.6.4</version>			
 		</dependency>		
 		
+		<!-- web, transfer application -->
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>jstl</artifactId>
+			<version>1.2</version>
+		</dependency>
+		
 	</dependencies>
 		
 	
